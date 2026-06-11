@@ -1,5 +1,7 @@
 package sg.edu.nus.iss.a2a_listview
 
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -25,6 +27,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         "You there?", "I'm out...", "Stop It!", "I'm beat...", "What?!"
     )
 
+    // To track previous selection and settings
+    private var prevRow: View? = null
+    private var prevTextView: TextView? = null
+    private var prevCaption: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,15 +49,43 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         listView?.setOnItemClickListener(this)
     }
 
-    override fun onItemClick(av: AdapterView<*>?, v: View, pos: Int, id: Long) {
-        // Set content
-        val textView = v.findViewById<TextView>(R.id.textView)
-        val caption = textView.text.toString()
+    // Initial item click response: and show Toast message
+//    override fun onItemClick(av: AdapterView<*>?, v: View, pos: Int, id: Long) {
+//        // Set content
+//        val textView = v.findViewById<TextView>(R.id.textView)
+//        val caption = textView.text.toString()
+//
+//        // Show message
+//        val toast = Toast
+//            .makeText(this, caption, Toast.LENGTH_SHORT)
+//        toast.show()
+//    }
 
-        // Show message
-        val toast = Toast
-            .makeText(this, caption, Toast.LENGTH_SHORT)
-        toast.show()
+    // PART 2 modify item click response: highlight caption and display as bold and in capital letters
+    override fun onItemClick(av: AdapterView<*>?, v: View, pos: Int, id: Long) {
+
+        // Identify textview
+        val textView = v.findViewById<TextView>(R.id.textView)
+
+        // Restore previous selection to unselected
+        prevTextView?.let { tv ->
+            tv.text = prevCaption // reset caption
+            tv.typeface = Typeface.DEFAULT // unbold
+            prevRow?.setBackgroundColor(Color.TRANSPARENT) // undo highlight
+        }
+
+        // Save original caption before modifying (for restoring on next selection)
+        prevCaption = textView.text.toString()
+
+        // Apply new selection
+        textView.text = prevCaption!!.uppercase() // UPPERCASE
+        textView.setTypeface(textView.typeface, Typeface.BOLD) // BOLD
+        v.setBackgroundColor(Color.CYAN) // HIGHLIGHT (whole row)
+
+        // Remember selected view
+        prevRow = v
+        prevTextView = textView
+
     }
 
 }
